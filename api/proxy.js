@@ -1,20 +1,25 @@
 const { createProxyMiddleware } = require("http-proxy-middleware");
 
 module.exports = (req, res) => {
-  let target = "https://github.com/";
-
-  // 创建代理对象
+  const target = "https://github.com/";
   const proxy = createProxyMiddleware({
     target,
     changeOrigin: true,
-    // 在这里可以添加其他代理配置
   });
 
-  // 使用代理对象处理请求
   proxy(req, res, (err) => {
     if (err) {
       console.error("Error proxying request:", err);
       return;
+    }
+
+    if (res.getHeader("location")) {
+      const locationHeader = res.getHeader("location");
+      const newLocationHeader = locationHeader.replace(
+        /raw\.githubusercontent\.com/g,
+        "raw.yttrium.eu.org"
+      );
+      res.setHeader("location", newLocationHeader);
     }
 
     if (res.getHeader("content-type") && res.getHeader("content-type").includes("text/html")) {
