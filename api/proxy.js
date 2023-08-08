@@ -1,3 +1,4 @@
+
 const {createProxyMiddleware} = require("http-proxy-middleware");
 
 module.exports = (req, res) => {
@@ -12,6 +13,41 @@ module.exports = (req, res) => {
   //   ) {
   //     target = "http://106.15.2.32:6969";
   //   }
+
+
+
+  proxy(req, res, (err) => {
+    if (err) {
+      console.error("Error proxying request:", err);
+      return;
+    }
+
+    if (res.getHeader("content-type") && res.getHeader("content-type").includes("text/html")) {
+      const originalWrite = res.write;
+      const originalEnd = res.end;
+      let body = "";
+
+      res.write = (chunk, encoding) => {
+        body += chunk.toString();
+        originalWrite.call(res, chunk, encoding);
+      };
+
+      res.end = (chunk, encoding) => {
+        if (chunk) {
+          body += chunk.toString();
+        }
+
+        body = body.replace(/raw\.githubusercontent\.com/g, "raw.yttrium.eu.org");
+        res.setHeader("content-length", Buffer.byteLength(body));
+        originalEnd.call(res, body, encoding);
+      };
+    }
+  });
+};
+
+
+
+
 
   // 创建代理对象并转发请求
   createProxyMiddleware({
