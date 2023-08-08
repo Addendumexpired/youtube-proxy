@@ -1,7 +1,7 @@
 const {createProxyMiddleware} = require("http-proxy-middleware");
 
 module.exports = (req, res) => {
-  let target = "https://www.google.com/search?q=google";
+  let target = "https://akunssh.net/v2ray-vmess-server/v2ray-vmess-7-us";
   // 代理目标地址
   // 这里使用 backend 主要用于区分 vercel serverless 的 api 路径
   //   if (
